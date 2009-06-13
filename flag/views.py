@@ -1,11 +1,9 @@
 from django.http import HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
 from flag.models import add_flag
 
-@login_required
 def flag(request):
     
     content_type = request.POST.get("content_type")
@@ -25,8 +23,8 @@ def flag(request):
         creator = None
     
     add_flag(request.user, content_type, object_id, creator, comment)
-    request.user.message_set.create(message="You have added a flag. A moderator will review your submission shortly.")
-    
+    if request.user.is_authenticated():
+        request.user.message_set.create(message="You have added a flag. A moderator will review your submission shortly.")
     if next:
         return HttpResponseRedirect(next)
     else:
